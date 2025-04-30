@@ -1,0 +1,71 @@
+const wordData = {
+  family: ['yêu thương', 'kính trọng', 'gắn bó', 'hi sinh', 'quan tâm', 'mẹ', 'cha', 'ông bà', 'anh chị', 'tình thân', 'cả nhà', 'hạnh phúc', 'giúp đỡ'],
+  school: ['chăm chỉ', 'kỷ luật', 'cố gắng', 'thầy cô', 'tri thức', 'sách vở', 'bài học', 'lớp học', 'thi cử', 'bảng đen', 'học sinh', 'giảng dạy', 'kiến thức'],
+  friendship: ['chia sẻ', 'trung thực', 'giúp đỡ', 'tha thứ', 'đoàn kết', 'tin tưởng', 'vui vẻ', 'bạn thân', 'hòa đồng', 'sự cảm thông', 'tình bạn', 'lòng tin', 'tình cảm']
+};
+
+let selectedWords = [];
+
+function loadWords() {
+  const topic = document.getElementById('topic').value;
+  const wordBank = document.getElementById('wordBank');
+  const backpack = document.getElementById('backpack');
+  selectedWords = [];
+  wordBank.innerHTML = '';
+  backpack.innerHTML = '<h3>Chiếc Ba Lô Của Em</h3><p>Kéo thả 3–5 từ vào đây nhé!</p>';
+  wordData[topic].forEach(word => {
+    const span = document.createElement('span');
+    span.className = 'word';
+    span.textContent = word;
+    span.draggable = true;
+    span.ondragstart = drag;
+    wordBank.appendChild(span);
+  });
+}
+
+function allowDrop(ev) {
+  ev.preventDefault();
+}
+
+function drag(ev) {
+  ev.dataTransfer.setData("text", ev.target.textContent);
+}
+
+function drop(ev) {
+  ev.preventDefault();
+  const data = ev.dataTransfer.getData("text");
+  if (!selectedWords.includes(data)) {
+    selectedWords.push(data);
+    const newWord = document.createElement("span");
+    newWord.className = 'word added'; // Thêm hiệu ứng khi thả
+    newWord.textContent = data;
+    document.getElementById("backpack").appendChild(newWord);
+  }
+}
+
+function submitSentence() {
+  const sentence = document.getElementById("sentence").value.toLowerCase();
+  const feedback = document.getElementById("feedback");
+  const used = selectedWords.some(word => sentence.includes(word));
+
+  // Ẩn phản hồi cũ trước khi hiển thị mới
+  feedback.classList.add('hidden');
+
+  setTimeout(() => {
+    if (sentence.length < 5) {
+      feedback.textContent = "Câu quá ngắn, em hãy viết dài hơn một chút nhé!";
+      feedback.classList.remove('hidden');
+      feedback.classList.add('warning');
+    } else if (used) {
+      feedback.textContent = "Tốt lắm! Em đã dùng từ trong ba lô rồi!";
+      feedback.classList.remove('hidden');
+      feedback.classList.add('success');
+    } else {
+      feedback.textContent = "Hãy thử dùng ít nhất một từ trong ba lô em nhé!";
+      feedback.classList.remove('hidden');
+      feedback.classList.add('error');
+    }
+  }, 300);
+}
+
+loadWords();
